@@ -1,5 +1,7 @@
 package se.lexicon;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,6 +47,9 @@ public class ContactService {
     public List<Contact> list() { return repository.findAll(); }
     public List<Contact> search(String query) { return repository.search(query); }
     public List<Contact> sorted() { return repository.findAllSorted(); }
+
+    public void loadContacts(Path path) throws IOException { repository.loadFromFile(path); }
+    public void saveContacts(Path path) throws IOException { repository.saveToFile(path); }
 
     private String validate(String first, String last, String phone, String email, int excludeId) {
         if (first.isBlank() || last.isBlank()) return "First and last name are required.";
