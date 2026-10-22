@@ -41,6 +41,7 @@ public class ContactApp {
                 case "3": searchContacts(); break;
                 case "4": updateContact(); break;
                 case "5": deleteContact(); break;
+                case "6": sortContacts(); break; // Optional challenge
                 case "0": running = false; break;
                 default: System.out.println("Please choose a valid option.");
             }
@@ -56,6 +57,7 @@ public class ContactApp {
         System.out.println("3. Search contacts");
         System.out.println("4. Update contact");
         System.out.println("5. Delete contact");
+        System.out.println("6. Sort A-Z (challenge)");
         System.out.println("0. Exit");
         System.out.print("Choose: ");
     }
@@ -134,6 +136,13 @@ public class ContactApp {
         }
         contacts.remove(contact);
         System.out.println("Contact deleted!");
+    }
+
+    // Optional challenge: sort without changing the original list.
+    static void sortContacts() {
+        List<Contact> sorted = new ArrayList<>(contacts);
+        sorted.sort((first, second) -> first.name.compareToIgnoreCase(second.name));
+        printContacts(sorted);
     }
 
     // Helpers shared by different menu options.
