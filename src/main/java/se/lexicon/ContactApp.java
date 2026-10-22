@@ -1,165 +1,126 @@
 package se.lexicon;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class ContactApp {
-
-    // One contact holds three pieces of information.
-    static class Contact {
-        String name;
-        String phone;
-        String email;
-
-        Contact(String name, String phone, String email) {
-            this.name = name;
-            this.phone = phone;
-            this.email = email;
-        }
-
-        @Override
-        public String toString() {
-            return name + " | " + phone + " | " + email;
-        }
-    }
-
-    // Contacts are stored in memory while the program is running.
-    static List<Contact> contacts = new ArrayList<>();
-    static Scanner scanner = new Scanner(System.in);
+    private static final Scanner SCANNER = new Scanner(System.in);
+    private final ContactService service = new ContactService(new ContactRepository());
 
     public static void main(String[] args) {
-        boolean running = true;
-
-        while (running) {
-            showMenu();
-            String choice = scanner.nextLine();
-
-            switch (choice) {
-                case "1": addContact(); break;
-                case "2": viewContacts(); break;
-                case "3": searchContacts(); break;
-                case "4": updateContact(); break;
-                case "5": deleteContact(); break;
-                case "6": sortContacts(); break; // Optional challenge
-                case "0": running = false; break;
-                default: System.out.println("Please choose a valid option.");
-            }
-        }
-
-        System.out.println("Goodbye!");
+        new ContactApp().runMenu();
     }
 
-    static void showMenu() {
-        System.out.println("\n=== CONTACT MANAGEMENT ===");
-        System.out.println("1. Add contact");
-        System.out.println("2. View contacts");
+    private void runMenu() {
+        System.out.println("=== CONTACT MANAGEMENT ===");
+        while (true) {
+            printMenu();
+            String choice = readLine("Choose: ");
+            if (choice == null || choice.equals("0")) {
+                System.out.println("Goodbye!");
+                return;
+            }
+            switch (choice) {
+                case "1" -> viewContacts(service.list());
+                case "2" -> addContact();
+                case "3" -> searchContacts();
+                case "4" -> updateContact();
+                case "5" -> deleteContact();
+                default -> System.out.println("Please choose a valid option.");
+            }
+        }
+    }
+
+    private void printMenu() {
+        System.out.println("\n1. View contacts");
+        System.out.println("2. Add contact");
         System.out.println("3. Search contacts");
         System.out.println("4. Update contact");
         System.out.println("5. Delete contact");
-        System.out.println("6. Sort A-Z (challenge)");
         System.out.println("0. Exit");
-        System.out.print("Choose: ");
     }
 
-    // Add a contact.
-    static void addContact() {
-        System.out.print("Name: ");
-        String name = scanner.nextLine().trim();
-        System.out.print("Phone: ");
-        String phone = scanner.nextLine().trim();
-        System.out.print("Email (optional): ");
-        String email = scanner.nextLine().trim();
-
-        if (name.isEmpty() || phone.isEmpty()) {
-            System.out.println("Name and phone are required.");
-            return;
-        }
-        if (findByPhone(phone) != null) {
-            System.out.println("That phone number already exists.");
-            return;
-        }
-        contacts.add(new Contact(name, phone, email));
-        System.out.println("Contact added!");
-    }
-
-    // View and search contacts.
-    static void viewContacts() {
-        printContacts(contacts);
-    }
-
-    static void searchContacts() {
-        System.out.print("Search by name or phone: ");
-        String query = scanner.nextLine().trim().toLowerCase();
-        List<Contact> matches = new ArrayList<>();
-
-        for (Contact contact : contacts) {
-            if (contact.name.toLowerCase().contains(query) || contact.phone.contains(query)) {
-                matches.add(contact);
-            }
-        }
-        printContacts(matches);
-    }
-
-    // Update and delete contacts.
-    static void updateContact() {
-        System.out.print("Phone number of contact to update: ");
-        Contact contact = findByPhone(scanner.nextLine().trim());
-        if (contact == null) {
-            System.out.println("Contact not found.");
-            return;
-        }
-
-        System.out.print("New name (Enter to keep): ");
-        String name = scanner.nextLine().trim();
-        System.out.print("New phone (Enter to keep): ");
-        String phone = scanner.nextLine().trim();
-        System.out.print("New email (Enter to keep): ");
-        String email = scanner.nextLine().trim();
-
-        if (!phone.isEmpty() && !phone.equals(contact.phone) && findByPhone(phone) != null) {
-            System.out.println("That phone number already exists.");
-            return;
-        }
-        if (!name.isEmpty()) contact.name = name;
-        if (!phone.isEmpty()) contact.phone = phone;
-        if (!email.isEmpty()) contact.email = email;
-        System.out.println("Contact updated!");
-    }
-
-    static void deleteContact() {
-        System.out.print("Phone number to delete: ");
-        Contact contact = findByPhone(scanner.nextLine().trim());
-        if (contact == null) {
-            System.out.println("Contact not found.");
-            return;
-        }
-        contacts.remove(contact);
-        System.out.println("Contact deleted!");
-    }
-
-    // Optional challenge: sort without changing the original list.
-    static void sortContacts() {
-        List<Contact> sorted = new ArrayList<>(contacts);
-        sorted.sort((first, second) -> first.name.compareToIgnoreCase(second.name));
-        printContacts(sorted);
-    }
-
-    // Helpers shared by different menu options.
-    static Contact findByPhone(String phone) {
-        for (Contact contact : contacts) {
-            if (contact.phone.equals(phone)) return contact;
-        }
-        return null;
-    }
-
-    static void printContacts(List<Contact> list) {
-        if (list.isEmpty()) {
+    private void viewContacts(List<Contact> contacts) {
+        if (contacts.isEmpty()) {
             System.out.println("No contacts found.");
             return;
         }
-        for (Contact contact : list) {
-            System.out.println(contact);
+        System.out.printf("%-5s %-20s %-18s %s%n", "ID", "NAME", "PHONE", "EMAIL");
+        System.out.println("-".repeat(65));
+        contacts.forEach(System.out::println);
+    }
+
+    private void addContact() {
+        String first = readLine("First name: ");
+        String last = readLine("Last name: ");
+        String phone = readLine("Phone: ");
+        String email = readLine("Email (optional): ");
+        if (first == null || last == null || phone == null || email == null) return;
+        printResult(service.add(first, last, phone, email));
+    }
+
+    private void searchContacts() {
+        String query = readLine("Search name or phone: ");
+        if (query != null) viewContacts(service.search(query));
+    }
+
+    private void updateContact() {
+        Integer id = promptId("Contact id to update: ");
+        if (id == null) return;
+        var match = service.find(id);
+        if (match.isEmpty()) {
+            System.out.println("No contact with id " + id);
+            return;
         }
+        Contact current = match.get();
+        System.out.println("Leave a field empty to keep its current value.");
+        String first = keepIfBlank("First name [" + current.getFirstName() + "]: ", current.getFirstName());
+        String last = keepIfBlank("Last name [" + current.getLastName() + "]: ", current.getLastName());
+        String phone = keepIfBlank("Phone [" + current.getPhone() + "]: ", current.getPhone());
+        String email = keepIfBlank("Email [" + current.getEmail() + "]: ", current.getEmail());
+        printResult(service.update(id, first, last, phone, email));
+    }
+
+    private void deleteContact() {
+        Integer id = promptId("Contact id to delete: ");
+        if (id == null) return;
+        if (service.find(id).isEmpty()) {
+            System.out.println("No contact with id " + id);
+            return;
+        }
+        String answer = readLine("Delete contact #" + id + "? Type yes to confirm: ");
+        if (!"yes".equalsIgnoreCase(answer)) {
+            System.out.println("Delete cancelled.");
+            return;
+        }
+        printResult(service.delete(id));
+    }
+
+    private Integer promptId(String prompt) {
+        while (true) {
+            String input = readLine(prompt);
+            if (input == null) return null;
+            try {
+                int id = Integer.parseInt(input);
+                if (id > 0) return id;
+            } catch (NumberFormatException ignored) {
+                // Ask again instead of crashing on letters or a huge number.
+            }
+            System.out.println("Please enter a valid positive ID number.");
+        }
+    }
+
+    private String keepIfBlank(String prompt, String current) {
+        String value = readLine(prompt);
+        return value == null || value.isEmpty() ? current : value;
+    }
+
+    private String readLine(String prompt) {
+        System.out.print(prompt);
+        return SCANNER.hasNextLine() ? SCANNER.nextLine().trim() : null;
+    }
+
+    private void printResult(ContactService.ValidationResult result) {
+        System.out.println((result.ok() ? "OK: " : "Error: ") + result.message());
     }
 }
