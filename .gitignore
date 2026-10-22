@@ -1,5 +1,7 @@
+target/
 out/
 *.class
 .idea/
 *.iml
 .vscode/
+contacts.txt
