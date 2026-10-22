@@ -158,4 +158,19 @@ class ContactWorkshopTest {
     void repositoryDelete_negativeUnknownId() {
         assertFalse(repository.delete(99));
     }
+
+    @Test
+    void add_rejectsNumbersInsteadOfNamesAndPhoneWithoutDigits() {
+        assertFalse(service.add("123", "Lee", "0701111111", "").ok());
+        assertFalse(service.add("Anna", "456", "0701111111", "").ok());
+        assertFalse(service.add("Anna", "Lee", "-----", "").ok());
+        assertFalse(service.add("Anna", "Lee", "12---", "").ok());
+        assertTrue(service.list().isEmpty());
+    }
+
+    @Test
+    void add_acceptsAccentedNamesAndInternationalPhone() {
+        assertTrue(service.add("Åsa", "Öberg", "+46 70 123 45 67", "").ok());
+        assertEquals("Åsa", service.list().get(0).getFirstName());
+    }
 }
