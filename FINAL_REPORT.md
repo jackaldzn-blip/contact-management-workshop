@@ -3,7 +3,7 @@
 **Workshop:** Java Arrays & Collections — Contact Management App  
 **Date:** 22 October 2026  
 **Meeting:** Online, from approximately 09:30  
-**Members:** Padma, Tuku, Janin, Vwselina, Anas and Carl  
+**Members:** Padma, Tuku, Jay, Veselina, Anas and Carl  
 **Shared project:** https://github.com/jackaldzn-blip/contact-management-workshop
 
 ## 1. Discussion and planning
@@ -81,7 +81,7 @@ The file uses one contact per line: `id|firstName|lastName|phone|email`. JUnit i
 
 ## 6. Testing and observed results
 
-**Janin and Vwselina** were responsible for the group's manual testing of the menu operations. The combined version has also been exercised through local console walkthroughs, including a restart to check that saving and loading work. The source includes JUnit 5 tests, although Maven was unavailable in the environment used for preparing this shared version.
+**Jay and Veselina** were responsible for the group's manual testing of the menu operations. The combined version has also been exercised through local console walkthroughs, including a restart to check that saving and loading work. The source includes JUnit 5 tests, although Maven was unavailable in the environment used for preparing this shared version.
 
 | Scenario | Verification | Result |
 | --- | --- | --- |
@@ -104,8 +104,8 @@ The **manual group testing** and the **local console verification** are distinct
 | --- | --- |
 | **Padma** | Created and discussed the flowchart and worked on **Challenge 2 (JUnit tests)** |
 | **Tuku** | Coordinated GitHub collaboration, proposed simple input validation, provided a four-class implementation and took responsibility for **Challenge 3 (file I/O)** |
-| **Janin** | Led manual testing of menu actions and checked results |
-| **Vwselina** | Led manual testing of menu actions and checked results |
+| **Jay** | Led manual testing of menu actions and checked results |
+| **Veselina** | Led manual testing of menu actions and checked results |
 | **Anas** | Participated in requirements and coding discussions; co-authored the group report |
 | **Carl** | Participated in requirements and coding discussions; co-authored the group report |
 
