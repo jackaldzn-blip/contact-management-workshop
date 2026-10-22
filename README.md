@@ -17,7 +17,7 @@ A small Java console contact manager. We agreed on a shared menu and flowchart, 
 
 A contact has an ID, first and last name, phone number and optional email. Contacts are stored in a `LinkedHashMap<Integer, Contact>` (a Java Collection).
 
-**Simple validation:** names and phone are required; phone numbers contain digits with optional `+`, spaces, brackets or hyphens; email is checked only when entered. Duplicate phone numbers and non-empty emails are rejected. Invalid menu options and non-numeric or too-large contact IDs do not crash the program.
+**Simple validation:** first and last names must contain letters (with common punctuation such as hyphens allowed). Phone numbers need at least five digits, with optional `+`, spaces, brackets or hyphens; email is checked only when entered. Duplicate phone numbers and non-empty emails are rejected. Invalid menu options and non-numeric or too-large contact IDs do not crash the program.
 
 ## Flowchart
 

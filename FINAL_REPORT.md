@@ -27,7 +27,7 @@ The shared final version contains:
 0. Save and exit (Challenge 3)
 ```
 
-Each contact has an ID, first name, last name, phone number and optional email address. We selected a Java Collection (`LinkedHashMap<Integer, Contact>`) to keep contacts accessible by ID and in insertion order. Phone numbers are stored as `String` to retain leading zeroes. Validation remains simple: required names and phone, sensible phone characters, optional email format and checks for duplicate phone numbers or non-empty email addresses.
+Each contact has an ID, first name, last name, phone number and optional email address. We selected a Java Collection (`LinkedHashMap<Integer, Contact>`) to keep contacts accessible by ID and in insertion order. Phone numbers are stored as `String` to retain leading zeroes. Validation remains simple: names must contain letters rather than digits, phone numbers must have at least five digits, optional email must have a basic format, and duplicate phone numbers or non-empty email addresses are rejected.
 
 ## 3. Application flowchart
 

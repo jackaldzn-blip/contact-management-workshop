@@ -53,8 +53,13 @@ public class ContactService {
 
     private String validate(String first, String last, String phone, String email, int excludeId) {
         if (first.isBlank() || last.isBlank()) return "First and last name are required.";
-        if (phone.isBlank() || !phone.matches("\\+?[0-9 ()-]{5,20}")) {
-            return "Enter a phone number (digits, optional +, spaces or hyphens).";
+        if (!first.matches("[\\p{L}][\\p{L} .'-]*")
+                || !last.matches("[\\p{L}][\\p{L} .'-]*")) {
+            return "Names must contain letters, not numbers.";
+        }
+        if (phone.isBlank() || !phone.matches("\\+?[0-9 ()-]{5,20}")
+                || phone.chars().filter(Character::isDigit).count() < 5) {
+            return "Enter a phone number with at least 5 digits (optional +, spaces or hyphens).";
         }
         if (!email.isEmpty() && !email.matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
             return "Enter a valid email address or leave it blank.";

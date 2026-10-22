@@ -195,8 +195,8 @@ The rules are deliberately simple:
 
 | Field or input | Rule |
 | --- | --- |
-| First name and last name | Cannot be blank |
-| Phone | Must be 5–20 allowed characters: digits, optional leading +, spaces, parentheses and hyphens |
+| First name and last name | Required; letters with common spaces, dots, apostrophes or hyphens; no digits |
+| Phone | Must have at least 5 digits, and 5–20 characters total; optional leading +, spaces, parentheses and hyphens |
 | Email | May be empty; if supplied, must resemble `name@example.com` |
 | Duplicate phone | Rejected |
 | Duplicate non-empty email | Rejected, ignoring uppercase/lowercase |
@@ -360,7 +360,7 @@ Challenge 2 asks for **positive and negative** tests for each data-access operat
 | Update | Existing contact is changed | Unknown ID cannot be updated |
 | Delete | Existing contact is deleted | Unknown ID cannot be deleted |
 
-The project contains **25 methods marked `@Test`** across the two files. This is the number of test cases *written*, **not a claim that all have passed**.
+The project contains **27 methods marked `@Test`** across the two files. This is the number of test cases *written*, **not a claim that all have passed**.
 
 To run the suite on a machine with Maven installed:
 
