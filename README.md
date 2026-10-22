@@ -94,4 +94,3 @@ git push -u origin feature/my-change
 
 On GitHub, open a **Pull Request** from your branch to `main`. After review and merging, run `git switch main` and `git pull --ff-only origin main` again.
 
-Because this project has only one Java file, **agree on who edits each method** to avoid conflicts. The sorting challenge was completed on `feature/sort-contacts` before being merged into `main`.
