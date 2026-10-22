@@ -1,10 +1,13 @@
 package se.lexicon;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Scanner;
 
 public class ContactApp {
     private static final Scanner SCANNER = new Scanner(System.in);
+    private static final Path DATA_FILE = Path.of("contacts.txt");
     private final ContactService service = new ContactService(new ContactRepository());
 
     public static void main(String[] args) {
@@ -12,12 +15,19 @@ public class ContactApp {
     }
 
     private void runMenu() {
+        try {
+            service.loadContacts(DATA_FILE);
+        } catch (IOException e) {
+            System.out.println("Could not load contacts: " + e.getMessage());
+            System.out.println("Please check contacts.txt before starting again.");
+            return; // Do not overwrite a file we cannot read.
+        }
         System.out.println("=== CONTACT MANAGEMENT ===");
         while (true) {
             printMenu();
             String choice = readLine("Choose: ");
             if (choice == null || choice.equals("0")) {
-                System.out.println("Goodbye!");
+                saveAndExit();
                 return;
             }
             switch (choice) {
@@ -39,7 +49,7 @@ public class ContactApp {
         System.out.println("4. Update contact");
         System.out.println("5. Delete contact");
         System.out.println("6. Sort contacts A-Z (Challenge 1)");
-        System.out.println("0. Exit");
+        System.out.println("0. Save and exit (Challenge 3)");
     }
 
     private void viewContacts(List<Contact> contacts) {
@@ -124,5 +134,14 @@ public class ContactApp {
 
     private void printResult(ContactService.ValidationResult result) {
         System.out.println((result.ok() ? "OK: " : "Error: ") + result.message());
+    }
+
+    private void saveAndExit() {
+        try {
+            service.saveContacts(DATA_FILE);
+            System.out.println("Contacts saved to contacts.txt. Goodbye!");
+        } catch (IOException e) {
+            System.out.println("Could not save contacts: " + e.getMessage());
+        }
     }
 }
