@@ -86,7 +86,7 @@ mvn test
 
 ## Manual testing
 
-Janin and Vwselina led the group's manual checks. Anyone can repeat them:
+Jay and Veselina led the group's manual checks. Anyone can repeat them:
 
 | Action | Expected result |
 | --- | --- |
