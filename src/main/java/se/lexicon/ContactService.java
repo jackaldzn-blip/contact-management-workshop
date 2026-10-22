@@ -44,6 +44,7 @@ public class ContactService {
     public Optional<Contact> find(int id) { return repository.findById(id); }
     public List<Contact> list() { return repository.findAll(); }
     public List<Contact> search(String query) { return repository.search(query); }
+    public List<Contact> sorted() { return repository.findAllSorted(); }
 
     private String validate(String first, String last, String phone, String email, int excludeId) {
         if (first.isBlank() || last.isBlank()) return "First and last name are required.";

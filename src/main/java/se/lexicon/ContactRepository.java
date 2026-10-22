@@ -1,6 +1,7 @@
 package se.lexicon;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +25,14 @@ public class ContactRepository {
 
     public List<Contact> findAll() {
         return new ArrayList<>(contacts.values());
+    }
+
+    // Challenge 1: sort a copy, keeping the stored order unchanged.
+    public List<Contact> findAllSorted() {
+        List<Contact> sorted = findAll();
+        sorted.sort(Comparator.comparing(Contact::getFirstName, String.CASE_INSENSITIVE_ORDER)
+                .thenComparing(Contact::getLastName, String.CASE_INSENSITIVE_ORDER));
+        return sorted;
     }
 
     public Optional<Contact> findById(int id) {
