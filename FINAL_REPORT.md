@@ -3,7 +3,7 @@
 **Workshop:** Java Arrays & Collections — Contact Management App  
 **Date:** 22 October 2026  
 **Meeting:** Online group discussion, starting at approximately 09:30  
-**Group members:** Padma, Tuku, Janin, Veselina, Anas and Carl  
+**Group members:** Padma, Tuku, Jay, Veselina, Anas and Carl  
 **Repository:** [contact-management-workshop](https://github.com/jackaldzn-blip/contact-management-workshop)
 
 ## 1. Introduction
@@ -129,7 +129,7 @@ This challenge gave us additional practice using Java Collections and comparing 
 
 ## 7. Manual testing and results
 
-After implementation, **Janin and Veselina** tested the menu options manually. We chose manual testing to keep the focus on the workshop's Java concepts rather than adding a separate testing framework.
+After implementation, **Jay and Veselina** tested the menu options manually. We chose manual testing to keep the focus on the workshop's Java concepts rather than adding a separate testing framework.
 
 The group reported that the tested operations worked as expected:
 
@@ -151,7 +151,7 @@ The group reported that the tested operations worked as expected:
 | --- | --- |
 | **Padma** | Prepared the working flowchart based on the discussion and reviewed it with the group |
 | **Tuku** | Coordinated the project, set up the shared repository and invited collaborators |
-| **Janin** | Manually tested the application's menu operations |
+| **Jay** | Manually tested the application's menu operations |
 | **Veselina** | Manually tested the application's menu operations |
 | **Anas** | Participated in planning and implementation discussions; co-authored the final report |
 | **Carl** | Participated in planning and implementation discussions; co-authored the final report |
