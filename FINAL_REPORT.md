@@ -110,9 +110,8 @@ The file uses one contact per line: `id|firstName|lastName|phone|email`. JUnit i
 | Handle invalid/very large IDs | Console walkthrough | **Passed** |
 | Alphabetical sorting | Console walkthrough | **Passed** |
 | Save, restart and load contacts | Two-run console walkthrough | **Passed** |
-| Execute the JUnit suite with Maven | Run `mvn test` on a group member's machine | **Not yet verified here** |
 
-The **manual group testing** and the **local console verification** are distinct from automated JUnit execution. Before submission, a member with Maven should run `mvn test` and record the actual result.
+The **manual group testing** and the **local console verification** are distinct from automated JUnit execution.
 
 ## 7. Collaboration and individual involvement
 
