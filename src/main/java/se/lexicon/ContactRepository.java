@@ -1,5 +1,9 @@
 package se.lexicon;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -73,5 +77,51 @@ public class ContactRepository {
     public boolean emailExists(String email, int excludeId) {
         return email != null && !email.isBlank() && contacts.values().stream().anyMatch(c ->
                 c.getId() != excludeId && c.getEmail().equalsIgnoreCase(email));
+    }
+
+    // Challenge 3: one contact per line: id|firstName|lastName|phone|email.
+    public void saveToFile(Path path) throws IOException {
+        List<String> lines = new ArrayList<>();
+        for (Contact c : contacts.values()) {
+            lines.add(c.getId() + "|" + c.getFirstName() + "|" + c.getLastName()
+                    + "|" + c.getPhone() + "|" + c.getEmail());
+        }
+        Files.write(path, lines, StandardCharsets.UTF_8);
+    }
+
+    public void loadFromFile(Path path) throws IOException {
+        if (!Files.exists(path)) {
+            return; // First run: start with an empty collection.
+        }
+        Map<Integer, Contact> loaded = new LinkedHashMap<>();
+        int largestId = 0;
+        int lineNumber = 0;
+        for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+            lineNumber++;
+            String[] parts = line.split("\\|", -1);
+            if (parts.length != 5) {
+                throw new IOException("Invalid contact at line " + lineNumber);
+            }
+            try {
+                int id = Integer.parseInt(parts[0]);
+                if (id <= 0 || id == Integer.MAX_VALUE || loaded.containsKey(id)
+                        || parts[1].isBlank() || parts[2].isBlank() || parts[3].isBlank()) {
+                    throw new IllegalArgumentException("Invalid contact");
+                }
+                for (Contact previous : loaded.values()) {
+                    if (previous.getPhone().equals(parts[3])
+                            || (!parts[4].isBlank() && previous.getEmail().equalsIgnoreCase(parts[4]))) {
+                        throw new IllegalArgumentException("Duplicate contact");
+                    }
+                }
+                loaded.put(id, new Contact(id, parts[1], parts[2], parts[3], parts[4]));
+                largestId = Math.max(largestId, id);
+            } catch (IllegalArgumentException ex) {
+                throw new IOException("Invalid contact at line " + lineNumber, ex);
+            }
+        }
+        contacts.clear();
+        contacts.putAll(loaded);
+        nextId = largestId + 1;
     }
 }
