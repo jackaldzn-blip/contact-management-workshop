@@ -81,6 +81,8 @@ Our shared final application builds on **Tuku's four-class approach**, which fol
 
 The project includes two JUnit test files in `src/test/java/se/lexicon/` and a short Maven `pom.xml`. The program has no database or graphical interface. The shared project is one agreed example; **each group member could keep their own implementation in their own repository**, and the individual programs need not be identical.
 
+**Individual implementation reference:** [Tuku's original Contact Workshop](https://github.com/tukue/java-fundamentals/tree/main/contact-workshop) is his separate project and illustrates the class responsibilities discussed by the group. We used his approach as a reference when preparing the shared version, while adapting features, simple validation, the three optional challenges, and documentation for the final group submission. The original and shared repositories are **separate implementations**, not identical copies.
+
 ## 5. Optional workshop challenges
 
 We included **all three** optional challenges on separate Git branches:
