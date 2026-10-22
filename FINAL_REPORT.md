@@ -10,7 +10,7 @@
 
 We met online at approximately **09:30** for an open group discussion. Everyone was able to share opinions about the requirements, contact information, menu operations and how to organise the application. We agreed on the **same basic functionality, menu and core program structure**, but members could use different Java implementations in their **own repositories**. Having different approaches was acceptable because the workshop focused on discussing, learning and reaching the same functional goal.
 
-**Padma** prepared a working flowchart from the group discussion. We reviewed it, suggested changes and agreed on the application flow before starting development. **Tuku** coordinated the shared GitHub setup, invited collaborators and suggested adding simple validation for names, phone numbers and email addresses.
+**Padma** prepared a working flowchart from the group discussion. We reviewed it, suggested changes and agreed on the application flow before starting development. **Tuku** coordinated the shared GitHub setup and invited collaborators. During our discussion, **Tuku also raised the importance of input validation**: the application should not accept incorrect contact details or unexpected input. We discussed his suggestion as a group, agreed that simple validation was necessary, and included it in our shared implementation without making the program unnecessarily complicated.
 
 ## 2. Agreed functionality and menu
 
@@ -27,7 +27,21 @@ The shared final version contains:
 0. Save and exit (Challenge 3)
 ```
 
-Each contact has an ID, first name, last name, phone number and optional email address. We selected a Java Collection (`LinkedHashMap<Integer, Contact>`) to keep contacts accessible by ID and in insertion order. Phone numbers are stored as `String` to retain leading zeroes. Validation remains simple: names must contain letters rather than digits, phone numbers must have at least five digits, optional email must have a basic format, and duplicate phone numbers or non-empty email addresses are rejected.
+Each contact has an ID, first name, last name, phone number and optional email address. We selected a Java Collection (`LinkedHashMap<Integer, Contact>`) to keep contacts accessible by ID and in insertion order. Phone numbers are stored as `String` to retain leading zeroes.
+
+### Input validation — group discussion and implementation
+
+As part of our planning, **we discussed why validation matters**: without it, a user could accidentally save empty names, an invalid phone number, or duplicate contact details. Following **Tuku's suggestion**, the group agreed to implement straightforward checks in `ContactService.java` and handle invalid menu/ID entries in `ContactApp.java`.
+
+| Input | Agreed and implemented check |
+| --- | --- |
+| First and last name | Required; must start with a letter and contain letters or common name punctuation, not numbers |
+| Phone number | At least five digits; allows a leading `+` and common separators |
+| Email address | Optional, but checked for a basic email format when entered |
+| Duplicates | Reject an existing phone number or an existing non-empty email address |
+| Contact ID and menu choice | Handle invalid values with a message instead of crashing |
+
+The checks run when adding or updating contacts. We kept them intentionally **simple and appropriate for a beginner workshop**, rather than creating a complex validation framework.
 
 ## 3. Application flowchart
 
@@ -115,6 +129,6 @@ All six members joined the planning discussion and could work from their own clo
 
 Our main lesson was that we could **agree on requirements and the overall application flow while solving problems differently** in Java. The planning discussion, Padma's flowchart, Tuku's coordination, manual testing and group documentation helped us cover the workshop objectives.
 
-The shared project demonstrates Java classes, methods, collections, loops, validation, Git collaboration, and **Challenges 1, 2 and 3** while remaining a manageable console application.
+The shared project demonstrates Java classes, methods, collections, loops, **the group-agreed input validation**, Git collaboration, and **Challenges 1, 2 and 3** while remaining a manageable console application.
 
 **Repository:** https://github.com/jackaldzn-blip/contact-management-workshop
