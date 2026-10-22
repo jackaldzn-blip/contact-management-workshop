@@ -108,4 +108,54 @@ class ContactWorkshopTest {
     void sorting_emptyCollectionIsSafe() {
         assertTrue(service.sorted().isEmpty());
     }
+
+    // Direct repository tests meet Challenge 2's data-access requirement.
+
+    @Test
+    void repositoryAdd_positive() {
+        assertNotNull(repository.add("Anna", "Lee", "0701111111", "anna@example.com"));
+        assertEquals(1, repository.findAll().size());
+    }
+
+    @Test
+    void repositoryAdd_negativeDuplicatePhone() {
+        repository.add("Anna", "Lee", "0701111111", "anna@example.com");
+        assertNull(repository.add("Omar", "Ali", "0701111111", "omar@example.com"));
+    }
+
+    @Test
+    void repositorySearch_positive() {
+        repository.add("Anna", "Lee", "0701111111", "");
+        assertEquals(1, repository.search("ANN").size());
+    }
+
+    @Test
+    void repositorySearch_negative() {
+        repository.add("Anna", "Lee", "0701111111", "");
+        assertTrue(repository.search("unknown").isEmpty());
+    }
+
+    @Test
+    void repositoryUpdate_positive() {
+        repository.add("Anna", "Lee", "0701111111", "");
+        assertTrue(repository.update(1, "Annie", "Lee", "0701111111", "").isPresent());
+        assertEquals("Annie", repository.findById(1).orElseThrow().getFirstName());
+    }
+
+    @Test
+    void repositoryUpdate_negativeUnknownId() {
+        assertTrue(repository.update(99, "Anna", "Lee", "0701111111", "").isEmpty());
+    }
+
+    @Test
+    void repositoryDelete_positive() {
+        repository.add("Anna", "Lee", "0701111111", "");
+        assertTrue(repository.delete(1));
+        assertTrue(repository.findById(1).isEmpty());
+    }
+
+    @Test
+    void repositoryDelete_negativeUnknownId() {
+        assertFalse(repository.delete(99));
+    }
 }
