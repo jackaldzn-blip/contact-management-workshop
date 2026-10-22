@@ -26,6 +26,7 @@ public class ContactApp {
                 case "3" -> searchContacts();
                 case "4" -> updateContact();
                 case "5" -> deleteContact();
+                case "6" -> viewContacts(service.sorted()); // Challenge 1
                 default -> System.out.println("Please choose a valid option.");
             }
         }
@@ -37,6 +38,7 @@ public class ContactApp {
         System.out.println("3. Search contacts");
         System.out.println("4. Update contact");
         System.out.println("5. Delete contact");
+        System.out.println("6. Sort contacts A-Z (Challenge 1)");
         System.out.println("0. Exit");
     }
 
