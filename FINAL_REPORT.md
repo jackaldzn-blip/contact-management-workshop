@@ -2,166 +2,119 @@
 
 **Workshop:** Java Arrays & Collections — Contact Management App  
 **Date:** 22 October 2026  
-**Meeting:** Online group discussion, starting at approximately 09:30  
-**Group members:** Padma, Tuku, Jay, Veselina, Anas and Carl  
-**Repository:** [contact-management-workshop](https://github.com/jackaldzn-blip/contact-management-workshop)
+**Meeting:** Online, from approximately 09:30  
+**Members:** Padma, Tuku, Janin, Vwselina, Anas and Carl  
+**Shared project:** https://github.com/jackaldzn-blip/contact-management-workshop
 
-## 1. Introduction
+## 1. Discussion and planning
 
-Our group developed a console-based Contact Management App in Java. The workshop focused on applying Java Collections and basic object-oriented programming while practising discussion, teamwork, GitHub collaboration and manual testing.
+We met online at approximately **09:30** for an open group discussion. Everyone was able to share opinions about the requirements, contact information, menu operations and how to organise the application. We agreed on the **same basic functionality, menu and core program structure**, but members could use different Java implementations in their **own repositories**. Having different approaches was acceptable because the workshop focused on discussing, learning and reaching the same functional goal.
 
-We aimed to keep the application small and understandable so everyone could participate in the planning and implementation.
+**Padma** prepared a working flowchart from the group discussion. We reviewed it, suggested changes and agreed on the application flow before starting development. **Tuku** coordinated the shared GitHub setup, invited collaborators and suggested adding simple validation for names, phone numbers and email addresses.
 
-## 2. Group discussion and planning
+## 2. Agreed functionality and menu
 
-We met online at approximately **09:30**. It was an open discussion in which everyone had the opportunity to suggest features, ask questions and share opinions on the design.
-
-We discussed what information each contact should contain, which actions the user would need, and how to organise the code. We agreed to represent each contact with a **name, phone number and optional email**, and to store contacts in an **`ArrayList`**. We also agreed to use a simple text menu and separate methods for the different operations.
-
-### Agreed application menu
+The shared final version contains:
 
 ```text
 === CONTACT MANAGEMENT ===
-1. Add contact
-2. View contacts
+1. View contacts
+2. Add contact
 3. Search contacts
 4. Update contact
 5. Delete contact
-6. Sort A-Z (challenge)
-0. Exit
-Choose:
+6. Sort contacts A-Z (Challenge 1)
+0. Save and exit (Challenge 3)
 ```
 
-The first five options provide the main contact-management functionality. **Option 6 implements Optional Challenge 1: Sort Contacts Alphabetically.**
+Each contact has an ID, first name, last name, phone number and optional email address. We selected a Java Collection (`LinkedHashMap<Integer, Contact>`) to keep contacts accessible by ID and in insertion order. Phone numbers are stored as `String` to retain leading zeroes. Validation remains simple: required names and phone, sensible phone characters, optional email format and checks for duplicate phone numbers or non-empty email addresses.
 
-## 3. Flowchart and agreed workflow
-
-Based on our discussion, **Padma prepared a working flowchart**. We reviewed the proposed workflow as a group, discussed it and agreed to use it as the basis for development.
-
-The following simplified diagram represents the agreed application flow and matches the final menu:
+## 3. Application flowchart
 
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Display menu]
-    B --> C{User choice}
-    C -->|1| D[Add contact]
-    C -->|2| E[View contacts]
-    C -->|3| F[Search by name or phone]
-    C -->|4| G[Update contact]
-    C -->|5| H[Delete contact]
-    C -->|6| I[Sort contacts A-Z]
-    C -->|0| J([Exit])
-    C -->|Invalid| K[Show error message]
-    D --> B
-    E --> B
-    F --> B
-    G --> B
-    H --> B
-    I --> B
-    K --> B
+    A([Start]) --> B[Load contacts if file exists]
+    B --> C[Display menu]
+    C --> D{Select option}
+    D -->|1| E[View contacts]
+    D -->|2| F[Add and validate]
+    D -->|3| G[Search contacts]
+    D -->|4| H[Update and validate]
+    D -->|5| I[Delete contact]
+    D -->|6| J[Sort and display A-Z]
+    D -->|0| K[Save contacts to text file]
+    D -->|Other| L[Display error]
+    E --> C
+    F --> C
+    G --> C
+    H --> C
+    I --> C
+    J --> C
+    L --> C
+    K --> M([Exit])
 ```
 
-After completing an operation, the program returns to the menu. Selecting **0** ends the application.
+## 4. Application structure
 
-## 4. Proposed and implemented code structure
+Our shared final application builds on **Tuku's four-class approach**, which follows the trainer's advice to separate menu logic, contact storage and business rules:
 
-To avoid unnecessary complexity, we kept the application in **one source file**, as requested in the workshop:
-
-```text
-contact-management-workshop/
-├── README.md
-└── src/
-    └── main/
-        └── java/
-            └── se/
-                └── lexicon/
-                    └── ContactApp.java
-```
-
-The file contains a nested **`Contact`** class, the shared **`ArrayList<Contact>`**, the menu and its operations. We discussed class design, variable declarations, method names and program logic during implementation.
-
-| Part | Responsibility |
+| Source file | Responsibility |
 | --- | --- |
-| `Contact` | Holds a contact's name, phone and email; provides a readable `toString()` |
-| `contacts` | Stores the contacts in an `ArrayList` while the program is running |
-| `main()` and `showMenu()` | Display the menu and direct the user's choice |
-| `addContact()` | Add a contact after checking required fields and duplicate phone numbers |
-| `viewContacts()` | Display the saved contacts |
-| `searchContacts()` | Search by name or phone |
-| `updateContact()` | Change an existing contact's details |
-| `deleteContact()` | Remove a contact by phone number |
-| `sortContacts()` | Display contacts in alphabetical order (Challenge 1) |
-| `findByPhone()` and `printContacts()` | Reusable methods for lookup and display |
+| `Contact.java` | Contact data: ID, first/last name, phone, email |
+| `ContactRepository.java` | `LinkedHashMap`, add/search/update/delete, alphabetical ordering, file I/O |
+| `ContactService.java` | Simple validation, duplicate checks, calls to repository |
+| `ContactApp.java` | Console menu, input and results |
 
-We used one shared plan rather than requiring every member to write identical code. Individual approaches could differ while still meeting the same requirements. Contact data is held **in memory only**; saving to a file was not part of our selected challenge.
+The project includes two JUnit test files in `src/test/java/se/lexicon/` and a short Maven `pom.xml`. The program has no database or graphical interface. The shared project is one agreed example; **each group member could keep their own implementation in their own repository**, and the individual programs need not be identical.
 
-## 5. Coordination and GitHub collaboration
+## 5. Optional workshop challenges
 
-**Tuku** coordinated the project setup, established the shared GitHub repository and invited the other members as collaborators. All group members cloned the repository and worked on their own local copies.
+We included **all three** optional challenges on separate Git branches:
 
-We continued our discussions while coding, helping each other understand Java classes, variables, loops, collections and method implementations. GitHub gave us a common location for the project files and made it possible to share our work.
-
-For the optional sorting challenge, we also used a separate branch, **`feature/sort-contacts`**, and merged the completed change into `main` through [Pull Request #1](https://github.com/jackaldzn-blip/contact-management-workshop/pull/1).
-
-## 6. Optional Challenge 1 — Sort Contacts Alphabetically
-
-In addition to the core functionality, we implemented **Challenge 1: Sort Contacts**, which displays the contacts alphabetically by name.
-
-The program copies the contact list and sorts the copy using `sort()` and `compareToIgnoreCase()`. This keeps the original list order unchanged while showing an A–Z result.
-
-For example, if the contacts are added in this order:
-
-```text
-Zara
-Anna
-Omar
-```
-
-Option **6 — Sort A-Z** displays:
-
-```text
-Anna
-Omar
-Zara
-```
-
-This challenge gave us additional practice using Java Collections and comparing strings.
-
-## 7. Manual testing and results
-
-After implementation, **Jay and Veselina** tested the menu options manually. We chose manual testing to keep the focus on the workshop's Java concepts rather than adding a separate testing framework.
-
-The group reported that the tested operations worked as expected:
-
-| Menu option | Manual check | Reported result |
+| Challenge | What was implemented | Group contribution |
 | --- | --- | --- |
-| 1 — Add | Enter a new contact | **Passed** |
-| 2 — View | Display the list of contacts | **Passed** |
-| 3 — Search | Find a contact by name or phone | **Passed** |
-| 4 — Update | Change an existing contact | **Passed** |
-| 5 — Delete | Remove a contact | **Passed** |
-| 6 — Sort A–Z | Display contacts alphabetically | **Passed** |
-| 0 — Exit | Close the application through the menu | **Passed** |
+| **1. Sort contacts** | Menu option 6 sorts a copy of the contacts alphabetically by first and last name | Included in the group solution |
+| **2. JUnit tests** | Positive and negative cases for add, search, update, delete; extra sorting/validation checks | **Padma** worked on Challenge 2 |
+| **3. File I/O** | At startup load saved contacts, and at exit save contacts, using plain-text `contacts.txt` | **Tuku** took responsibility for Challenge 3 |
 
-**Testing note:** These results summarise the group's reported manual checks; they are not JUnit results or a separate automated test run. The application also includes basic checks for empty required fields, duplicate phone numbers, missing contacts and invalid menu choices.
+The file uses one contact per line: `id|firstName|lastName|phone|email`. JUnit is not needed just to run the application; it is included for Challenge 2.
 
-## 8. Group participation
+## 6. Testing and observed results
+
+**Janin and Vwselina** were responsible for the group's manual testing of the menu operations. The combined version has also been exercised through local console walkthroughs, including a restart to check that saving and loading work. The source includes JUnit 5 tests, although Maven was unavailable in the environment used for preparing this shared version.
+
+| Scenario | Verification | Result |
+| --- | --- | --- |
+| Add and view contacts | Console walkthrough | **Passed** |
+| Search by name or phone | Console walkthrough | **Passed** |
+| Update by contact ID | Console walkthrough | **Passed** |
+| Delete with confirmation | Console walkthrough | **Passed** |
+| Reject missing names or invalid phone | Console walkthrough | **Passed** |
+| Reject duplicate phone or non-empty email | Console walkthrough | **Passed** |
+| Handle invalid/very large IDs | Console walkthrough | **Passed** |
+| Alphabetical sorting | Console walkthrough | **Passed** |
+| Save, restart and load contacts | Two-run console walkthrough | **Passed** |
+| Execute the JUnit suite with Maven | Run `mvn test` on a group member's machine | **Not yet verified here** |
+
+The **manual group testing** and the **local console verification** are distinct from automated JUnit execution. Before submission, a member with Maven should run `mvn test` and record the actual result.
+
+## 7. Collaboration and individual involvement
 
 | Member | Contribution |
 | --- | --- |
-| **Padma** | Prepared the working flowchart based on the discussion and reviewed it with the group |
-| **Tuku** | Coordinated the project, set up the shared repository and invited collaborators |
-| **Jay** | Manually tested the application's menu operations |
-| **Veselina** | Manually tested the application's menu operations |
-| **Anas** | Participated in planning and implementation discussions; co-authored the final report |
-| **Carl** | Participated in planning and implementation discussions; co-authored the final report |
+| **Padma** | Created and discussed the flowchart and worked on **Challenge 2 (JUnit tests)** |
+| **Tuku** | Coordinated GitHub collaboration, proposed simple input validation, provided a four-class implementation and took responsibility for **Challenge 3 (file I/O)** |
+| **Janin** | Led manual testing of menu actions and checked results |
+| **Vwselina** | Led manual testing of menu actions and checked results |
+| **Anas** | Participated in requirements and coding discussions; co-authored the group report |
+| **Carl** | Participated in requirements and coding discussions; co-authored the group report |
 
-**All six members** took part in the initial discussion, worked with local project copies and communicated during implementation. The roles in the table describe particular responsibilities, not the full extent of each person's participation.
+All six members joined the planning discussion and could work from their own cloned copies and personal repositories. We continued discussing classes, variable declarations, methods, collections and coding choices during implementation. The shared version does not claim that every member's implementation was identical or merged.
 
-## 9. Reflection and conclusion
+## 8. Reflection and conclusion
 
-The main challenge was coordinating work across six members while allowing room for different programming approaches. Our shared discussion, menu design and flowchart provided a common starting point. Working through the implementation also helped us understand why methods, variables and collections should be organised clearly.
+Our main lesson was that we could **agree on requirements and the overall application flow while solving problems differently** in Java. The planning discussion, Padma's flowchart, Tuku's coordination, manual testing and group documentation helped us cover the workshop objectives.
 
-We completed a simple contact-management application with the agreed core operations and **Optional Challenge 1 (alphabetical sorting)**. The workshop gave us practical experience with `ArrayList`, classes, methods, loops, conditional statements, console input, manual testing and GitHub collaboration.
+The shared project demonstrates Java classes, methods, collections, loops, validation, Git collaboration, and **Challenges 1, 2 and 3** while remaining a manageable console application.
 
-**Final project:** https://github.com/jackaldzn-blip/contact-management-workshop
+**Repository:** https://github.com/jackaldzn-blip/contact-management-workshop

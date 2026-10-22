@@ -1,78 +1,117 @@
-# Contact Management App (Java)
+# Contact Management App — Java Workshop
 
-A simple console application for our Java Collections workshop. Everything is in **one Java file**, using an `ArrayList` to store contacts (name, phone, and optional email).
+A small Java console contact manager. We agreed on a shared menu and flowchart, while each group member could develop their own version in their own repository. This shared final version uses Tuku's straightforward four-class structure.
 
-## Features
+## Menu and features
 
-Add, view, search, update, and delete contacts. **Optional challenge:** display contacts alphabetically (A–Z).
+```text
+=== CONTACT MANAGEMENT ===
+1. View contacts
+2. Add contact
+3. Search contacts
+4. Update contact
+5. Delete contact
+6. Sort contacts A-Z (Challenge 1)
+0. Save and exit (Challenge 3)
+```
 
-Contacts are stored in memory only and disappear when the application exits.
+A contact has an ID, first and last name, phone number and optional email. Contacts are stored in a `LinkedHashMap<Integer, Contact>` (a Java Collection).
 
-## App flowchart
+**Simple validation:** names and phone are required; phone numbers contain digits with optional `+`, spaces, brackets or hyphens; email is checked only when entered. Duplicate phone numbers and non-empty emails are rejected. Invalid menu options and non-numeric or too-large contact IDs do not crash the program.
+
+## Flowchart
 
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Show menu]
-    B --> C{Choose an option}
-    C -->|1| D[Add contact]
-    C -->|2| E[View contacts]
-    C -->|3| F[Search contacts]
-    C -->|4| G[Update contact]
-    C -->|5| H[Delete contact]
-    C -->|6| I[Sort contacts A-Z]
-    C -->|0| J([Exit])
-    C -->|Other| K[Show invalid choice]
-    D --> B
-    E --> B
-    F --> B
-    G --> B
-    H --> B
-    I --> B
-    K --> B
+    A([Start]) --> B[Load contacts.txt if available]
+    B --> C[Show menu]
+    C --> D{Choice}
+    D -->|1| E[View contacts]
+    D -->|2| F[Add and validate]
+    D -->|3| G[Search contacts]
+    D -->|4| H[Update and validate]
+    D -->|5| I[Delete with confirmation]
+    D -->|6| J[Display sorted contacts A-Z]
+    D -->|0| K[Save contacts.txt]
+    D -->|Invalid| L[Show error]
+    E --> C
+    F --> C
+    G --> C
+    H --> C
+    I --> C
+    J --> C
+    L --> C
+    K --> M([Exit])
 ```
 
-## Run the app
+## Project structure
 
-Open `src/main/java/se/lexicon/ContactApp.java` in IntelliJ IDEA and run `main()`.
-
-Or use a terminal from the project folder (requires a Java JDK):
-
-```bash
-javac -d out src/main/java/se/lexicon/ContactApp.java
-java -cp out se.lexicon.ContactApp
+```text
+src/main/java/se/lexicon/
+  Contact.java           Contact fields and display
+  ContactRepository.java LinkedHashMap storage, search, sort and file I/O
+  ContactService.java    Simple validation and contact rules
+  ContactApp.java        Menu and keyboard input
+src/test/java/se/lexicon/
+  ContactWorkshopTest.java   JUnit 5 tests for CRUD and sorting
+  ContactFileTest.java       JUnit 5 file save/load tests
+pom.xml                  Maven config for optional JUnit challenge
+FINAL_REPORT.md          Group report
 ```
 
-## Manual testing
+## Clone and run
 
-Run the program and try:
-
-1. Add Anna with phone `0701111111`, then view the contacts.
-2. Search for `ann` and check that Anna appears.
-3. Update Anna's name and check the result.
-4. Add a second contact using Anna's phone; it should be rejected.
-5. Delete a contact and check that it is gone.
-6. Add Zara, Anna, and Omar, then use **6. Sort A-Z**; check the alphabetical order.
-7. Try an empty name, an unknown phone number, and an invalid menu option.
-
-Testing is **manual**. JUnit and file saving are not included.
-
-## Working with GitHub
-
-**Clone the repository** (once):
+Requires **Java JDK 17 or newer**. Open the cloned folder in IntelliJ IDEA and run `ContactApp.main()`, or use a terminal:
 
 ```bash
 git clone https://github.com/jackaldzn-blip/contact-management-workshop.git
 cd contact-management-workshop
+javac -d out src/main/java/se/lexicon/*.java
+java -cp out se.lexicon.ContactApp
 ```
 
-**Pull the latest changes** before starting work:
+PowerShell users can use IntelliJ's Run button, or replace the wildcard in `javac` with the four explicit Java file paths.
+
+## All three optional challenges
+
+**Challenge 1 — Sorting:** Menu option 6 displays an alphabetical copy, by first and last name. The stored order does not change.
+
+**Challenge 2 — JUnit 5:** Positive and negative tests for add, search, update and delete, plus validation, sorting and file tests. Run on a computer with Maven installed:
+
+```bash
+mvn test
+```
+
+**Challenge 3 — File I/O:** The application automatically loads `contacts.txt` when it starts, and saves to it when you select 0. Each line is plain text in the format `id|firstName|lastName|phone|email`. The file appears in the folder from which you run the app, and is excluded from Git.
+
+## Manual testing
+
+Janin and Vwselina led the group's manual checks. Anyone can repeat them:
+
+| Action | Expected result |
+| --- | --- |
+| Add Anna and Omar | Both appear in View |
+| Search name or phone | Matching contact appears |
+| Update contact by ID | Changed values appear |
+| Delete by ID and confirm `yes` | Contact disappears |
+| Enter empty name or alphabetic phone | Error shown; no crash |
+| Add duplicate phone or non-empty email | Rejected |
+| Enter letters or huge number as contact ID | Asked to enter a valid number |
+| Add Zara, Anna, Omar and select Sort | Anna, Omar, Zara |
+| Exit and run app again | Contacts restored from file |
+
+JUnit is included specifically for Challenge 2; manual checks remain useful.
+
+## Basic Git commands
+
+Get the latest changes before working:
 
 ```bash
 git switch main
 git pull --ff-only origin main
 ```
 
-**Commit and push your changes** (requires collaborator write access):
+After changing and testing your code (requires repository write permission):
 
 ```bash
 git add .
@@ -80,17 +119,18 @@ git commit -m "Describe what you changed"
 git push origin main
 ```
 
-**Optional: use a separate branch** for your changes:
+Optional separate feature branch (required for workshop challenges):
 
 ```bash
 git switch main
 git pull --ff-only origin main
 git switch -c feature/my-change
-# Edit and manually test the code, then:
+# Make your changes, then:
 git add .
 git commit -m "Describe what you changed"
 git push -u origin feature/my-change
 ```
 
-On GitHub, open a **Pull Request** from your branch to `main`. After review and merging, run `git switch main` and `git pull --ff-only origin main` again.
+Open a Pull Request to `main` on GitHub, review it and merge it. The three optional challenges in this shared project were developed through separate branches and pull requests.
 
+See [FINAL_REPORT.md](FINAL_REPORT.md) for the group report.
