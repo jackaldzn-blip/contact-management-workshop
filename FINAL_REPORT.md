@@ -10,7 +10,7 @@
 
 We met online at approximately **09:30** for an open group discussion. Everyone was able to share opinions about the requirements, contact information, menu operations and how to organise the application. We agreed on the **same basic functionality, menu and core program structure**, but members could use different Java implementations in their **own repositories**. Having different approaches was acceptable because the workshop focused on discussing, learning and reaching the same functional goal.
 
-**Padma** prepared a working flowchart from the group discussion. We reviewed it, suggested changes and agreed on the application flow before starting development. **Tuku** coordinated the shared GitHub setup and invited collaborators. During our discussion, **Tuku also raised the importance of input validation**: the application should not accept incorrect contact details or unexpected input. We discussed his suggestion as a group, agreed that simple validation was necessary, and included it in our shared implementation without making the program unnecessarily complicated.
+**Padma** prepared a working flowchart from the group discussion. We reviewed it, suggested changes and agreed on the application flow before starting development. **Tuku** coordinated the shared GitHub setup and invited collaborators. During our discussion, we also considered the importance of input validation: the application should not accept incorrect contact details or unexpected input. As a group, we agreed to include simple validation without making the program unnecessarily complicated.
 
 ## 2. Agreed functionality and menu
 
@@ -31,7 +31,7 @@ Each contact has an ID, first name, last name, phone number and optional email a
 
 ### Input validation — group discussion and implementation
 
-As part of our planning, **we discussed why validation matters**: without it, a user could accidentally save empty names, an invalid phone number, or duplicate contact details. Following **Tuku's suggestion**, the group agreed to implement straightforward checks in `ContactService.java` and handle invalid menu/ID entries in `ContactApp.java`.
+As part of our planning, **we discussed why validation matters**: without it, a user could accidentally save empty names, an invalid phone number, or duplicate contact details. We agreed as a group to implement straightforward checks in `ContactService.java` and handle invalid menu/ID entries in `ContactApp.java`.
 
 | Input | Agreed and implemented check |
 | --- | --- |
@@ -117,7 +117,7 @@ The **manual group testing** and the **local console verification** are distinct
 | Member | Contribution |
 | --- | --- |
 | **Padma** | Created and discussed the flowchart and worked on **Challenge 2 (JUnit tests)** |
-| **Tuku** | Coordinated GitHub collaboration, proposed simple input validation, provided a four-class implementation and took responsibility for **Challenge 3 (file I/O)** |
+| **Tuku** | Coordinated GitHub collaboration, provided a four-class implementation and took responsibility for **Challenge 3 (file I/O)** |
 | **Jay** | Led manual testing of menu actions and checked results |
 | **Veselina** | Led manual testing of menu actions and checked results |
 | **Anas** | Participated in requirements and coding discussions; co-authored the group report |
