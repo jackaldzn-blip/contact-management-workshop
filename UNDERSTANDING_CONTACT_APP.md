@@ -1,544 +1,468 @@
 # Understanding Our Contact Management App — Step by Step
 
 **Workshop:** Java Arrays & Collections — Contact Management App  
-**Project repository:** [contact-management-workshop](https://github.com/jackaldzn-blip/contact-management-workshop)  
-**Application source:** [`src/main/java/se/lexicon/ContactApp.java`](https://github.com/jackaldzn-blip/contact-management-workshop/blob/main/src/main/java/se/lexicon/ContactApp.java)
+**Project:** [contact-management-workshop](https://github.com/jackaldzn-blip/contact-management-workshop)  
+**Java version:** JDK 17 or newer  
+**Guide for:** The current **four-class** application, including all three optional challenges
 
-## What does the application do?
+> **Start here:** You do not need to understand every Java file at once. First understand what a contact is, where it is stored, and how the menu calls the methods. Then learn the challenges one by one.
 
-Our program is a **console-based contact manager**. It lets a user:
+## 1. What does our program do?
 
-- **1** — Add a contact.
-- **2** — View all contacts.
-- **3** — Search by name or phone number.
-- **4** — Update an existing contact.
-- **5** — Delete a contact.
-- **6** — Sort contacts alphabetically (**Challenge 1**).
-- **0** — Exit the application.
+Our program is a small **console contact manager**. A user can add, display, search, update and delete contacts. The application also sorts contacts, tests methods with JUnit 5, and saves contacts to a text file.
 
-Each contact has a **name**, **phone number**, and **optional email address**. The program uses **one Java source file** and an `ArrayList<Contact>` to hold contacts while it is running.
+This is the **current menu** (note that **1 is View** and **2 is Add**):
 
-The main idea is simple: the user chooses an option, Java calls the matching method, and the method reads or changes the contacts list.
+```text
+=== CONTACT MANAGEMENT ===
+
+1. View contacts
+2. Add contact
+3. Search contacts
+4. Update contact
+5. Delete contact
+6. Sort contacts A-Z (Challenge 1)
+0. Save and exit (Challenge 3)
+Choose:
+```
+
+Each contact has five values: **ID, first name, last name, phone number, and optional email**.
+
+Example:
+
+```text
+ID:          1
+First name:  Anna
+Last name:   Lee
+Phone:       0701111111
+Email:       anna@example.com
+```
+
+The ID is created automatically. Phone numbers are **String** values, not integers, because phone numbers may start with zero or include a plus sign.
+
+## 2. Why do we have four classes?
+
+The trainer asked us to think about **separation of concerns**: give each class and method a clear responsibility.
+
+| File | Simple explanation |
+| --- | --- |
+| [`Contact.java`](src/main/java/se/lexicon/Contact.java) | Describes **one contact** |
+| [`ContactRepository.java`](src/main/java/se/lexicon/ContactRepository.java) | **Stores** contacts and retrieves, sorts, loads, or saves them |
+| [`ContactService.java`](src/main/java/se/lexicon/ContactService.java) | Checks **validation and rules** before making changes |
+| [`ContactApp.java`](src/main/java/se/lexicon/ContactApp.java) | Shows the **menu** and reads keyboard input |
+
+We also have two files for **Challenge 2 (JUnit)**, plus `pom.xml`, which tells Maven how to run the JUnit tests. The program is still a small console application: **no database or graphical interface**.
+
+## 3. Complete application flow
 
 ```mermaid
 flowchart TD
-    A([Start]) --> B[Show menu]
-    B --> C{User choice}
-    C -->|1| D[Add]
-    C -->|2| E[View]
-    C -->|3| F[Search]
-    C -->|4| G[Update]
-    C -->|5| H[Delete]
-    C -->|6| I[Sort A-Z]
-    C -->|0| J([Goodbye])
-    C -->|Other| K[Invalid choice]
-    D --> B
-    E --> B
-    F --> B
-    G --> B
-    H --> B
-    I --> B
-    K --> B
+    A([Start]) --> B["Load contacts.txt if it exists"]
+    B --> C["Show menu"]
+    C --> D{"Choose option"}
+    D -->|1| E["View all"]
+    D -->|2| F["Add and validate"]
+    D -->|3| G["Search"]
+    D -->|4| H["Update and validate"]
+    D -->|5| I["Delete after confirmation"]
+    D -->|6| J["Sort A-Z and show"]
+    D -->|0| K["Save contacts.txt"]
+    D -->|Invalid| L["Show error"]
+    E --> C
+    F --> C
+    G --> C
+    H --> C
+    I --> C
+    J --> C
+    L --> C
+    K --> M([Exit])
 ```
 
----
+The classes work together in this direction:
 
-## 1. Package and imports
-
-```java
-package se.lexicon;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+```text
+User types in console
+        |
+        v
+ContactApp        (menu and input)
+        |
+        v
+ContactService    (rules and validation)
+        |
+        v
+ContactRepository (collection and file I/O)
+        |
+        v
+Contact objects   (each person's details)
 ```
 
-- `package se.lexicon;` identifies the Java package. The file is stored in `src/main/java/se/lexicon/`.
-- `ArrayList` is a resizable collection that holds our contacts.
-- `List` is the interface used to describe that collection.
-- `Scanner` reads text entered by the user in the console.
+For example, when the user adds a contact, the menu does **not** directly write to the collection. It sends the values to the service, which checks them before calling the repository.
 
-**Remember:** We use a phone number as a `String`, not an `int`, because phone numbers may begin with `0` and are not numbers we calculate with.
+## 4. Contact.java — one person's information
 
-## 2. The `Contact` class — one contact
-
-Inside `ContactApp`, we declare a **static nested class** called `Contact`:
+The `Contact` class stores these private fields:
 
 ```java
-static class Contact {
-    String name;
-    String phone;
-    String email;
+private final int id;
+private final String firstName;
+private final String lastName;
+private final String phone;
+private final String email;
+```
 
-    Contact(String name, String phone, String email) {
-        this.name = name;
-        this.phone = phone;
-        this.email = email;
-    }
+- `private` means other classes cannot directly change these fields.
+- `final` means each field is assigned when the object is created and cannot later be reassigned.
+- A **constructor** receives the five values and creates a `Contact` object.
+- **Getters**, such as `getFirstName()` and `getPhone()`, allow other classes to read the data.
+- `toString()` controls how a contact is printed in the console.
 
-    @Override
-    public String toString() {
-        return name + " | " + phone + " | " + email;
-    }
+Example:
+
+```java
+Contact anna = new Contact(
+    1, "Anna", "Lee", "0701111111", "anna@example.com"
+);
+
+System.out.println(anna.getFirstName()); // Anna
+```
+
+**Important:** Updating a contact does not change those final fields. The repository creates a **new Contact object with the same ID** and replaces the old object in the collection.
+
+## 5. ContactRepository.java — where contacts are kept
+
+The main storage is:
+
+```java
+private final Map<Integer, Contact> contacts = new LinkedHashMap<>();
+private int nextId = 1;
+```
+
+This means:
+
+- `Map<Integer, Contact>` associates each contact's **integer ID** with its `Contact` object.
+- `LinkedHashMap` remembers the order in which contacts were added.
+- `nextId` starts at 1 and supplies the ID for the next new contact.
+
+Think of it as a table:
+
+| Key (ID) | Value (Contact) |
+| --- | --- |
+| `1` | Anna Lee, 0701111111 |
+| `2` | Omar Ali, 0702222222 |
+| `3` | Zara Jones, 0703333333 |
+
+Why use a `LinkedHashMap` instead of an `ArrayList`? Both are legitimate Java Collections. In our shared implementation, a map lets us look up a contact directly using its ID, while preserving entry order. We still use `ArrayList` when we need a **list** for searching and sorting.
+
+### Adding
+
+```java
+Contact contact = new Contact(nextId++, firstName, lastName, phone, email);
+contacts.put(contact.getId(), contact);
+```
+
+`nextId++` uses the current ID, then increases it for the next contact. `put` stores the new object under its ID.
+
+### Viewing and searching
+
+`findAll()` returns a new `ArrayList` of the stored contacts.
+
+`search(query)` loops over contacts and collects those whose first name, last name, or phone contains the search text. Name searches ignore letter case: searching for `ann` can find `Anna`.
+
+### Finding by ID
+
+`findById(id)` returns an `Optional<Contact>`. An Optional represents either a matching contact **or no contact**. That is safer than assuming a contact always exists.
+
+### Updating and deleting
+
+- `update(id, ...)` checks whether the ID exists and whether the new phone or non-empty email would duplicate another contact. It replaces the existing object while keeping the same ID.
+- `delete(id)` removes the entry. It returns `true` when a contact was removed and `false` when the ID was unknown.
+
+The repository also provides helper methods `phoneExists(...)` and `emailExists(...)`. Those are used to prevent duplicate details.
+
+## 6. ContactService.java — simple validation
+
+The service sits between the menu and the repository.
+
+When someone adds a contact, the service:
+
+1. Removes extra spaces from the beginning and end of the input.
+2. Checks required fields and simple formats.
+3. Checks that the phone and any non-empty email are not already used.
+4. Calls the repository to save the contact.
+5. Returns a success or error message.
+
+The rules are deliberately simple:
+
+| Field or input | Rule |
+| --- | --- |
+| First name and last name | Cannot be blank |
+| Phone | Must be 5–20 allowed characters: digits, optional leading +, spaces, parentheses and hyphens |
+| Email | May be empty; if supplied, must resemble `name@example.com` |
+| Duplicate phone | Rejected |
+| Duplicate non-empty email | Rejected, ignoring uppercase/lowercase |
+| `|` character | Not allowed in contact fields because the file format uses it as a separator |
+| Contact ID typed in menu | Must be a positive integer |
+
+This is **basic workshop validation**, not a complete international phone/email validator. For example, names are checked for being non-blank rather than restricted to English letters.
+
+A simplified idea of the check is:
+
+```java
+if (first.isBlank() || last.isBlank()) {
+    return "First and last name are required.";
 }
 ```
 
-### What do the fields represent?
-
-- `name` stores the person's name.
-- `phone` stores their phone number.
-- `email` stores their email address, if provided.
-
-### What is a constructor?
-
-The constructor runs when we create a new contact:
+The service returns a small result record:
 
 ```java
-Contact anna = new Contact("Anna", "0701234567", "anna@example.com");
+public record ValidationResult(boolean ok, String message) { }
 ```
 
-`this.name = name;` means: store the supplied `name` argument in the `name` field of **this particular contact object**. The same idea applies to `phone` and `email`.
+For example, a result can be `(true, "Contact added with id 1")` or `(false, "Phone number already in use.")`. The menu prints the message.
 
-### What does `toString()` do?
+## 7. ContactApp.java — the entry point and menu
 
-`toString()` tells Java how to represent an object as text. With our override:
-
-```java
-System.out.println(anna);
-```
-
-Output:
-
-```text
-Anna | 0701234567 | anna@example.com
-```
-
-Without this override, printing the object would usually show a class name and an object identifier instead of useful contact details.
-
-## 3. Where do contacts live?
-
-```java
-static List<Contact> contacts = new ArrayList<>();
-static Scanner scanner = new Scanner(System.in);
-```
-
-- `contacts` begins as an **empty ArrayList**. It can hold many `Contact` objects.
-- `scanner` lets our program read input typed into the console.
-- Both variables are `static`, so our static methods can use them directly.
-
-For example, after adding three contacts, the list could look like this:
-
-| Index | Name | Phone |
-|---|---|---|
-| `0` | Zara | `0703333333` |
-| `1` | Anna | `0701111111` |
-| `2` | Omar | `0702222222` |
-
-**Important:** ArrayList indexes start at **0**, and our program stores data **in memory only**. Contacts are lost when the program ends; saving to a file is not part of this version.
-
-## 4. `main()` — where the program starts
+Java starts here:
 
 ```java
 public static void main(String[] args) {
-    boolean running = true;
-
-    while (running) {
-        showMenu();
-        String choice = scanner.nextLine();
-
-        switch (choice) {
-            case "1": addContact(); break;
-            case "2": viewContacts(); break;
-            case "3": searchContacts(); break;
-            case "4": updateContact(); break;
-            case "5": deleteContact(); break;
-            case "6": sortContacts(); break;
-            case "0": running = false; break;
-            default: System.out.println("Please choose a valid option.");
-        }
-    }
-
-    System.out.println("Goodbye!");
+    new ContactApp().runMenu();
 }
 ```
 
-The execution order is:
+An instance of `ContactApp` creates a service, which in turn receives a repository. The `runMenu()` method first tries to **load existing contacts from the text file**, then repeats the menu inside a `while (true)` loop.
 
-1. `boolean running = true;` tells the application to keep going.
-2. `while (running)` repeatedly runs the menu and choice logic.
-3. `showMenu()` displays the available operations.
-4. `scanner.nextLine()` waits for the user to enter a choice.
-5. `switch (choice)` calls the corresponding method.
-6. Choosing `"0"` changes `running` to `false`, ending the loop.
-7. The program prints `Goodbye!`.
-
-`break` ends a `switch` case. It does **not** exit the outer `while` loop. The loop continues until the user chooses `0`.
-
-## 5. `showMenu()` — printing the choices
+The menu uses a `switch`:
 
 ```java
-static void showMenu() {
-    System.out.println("\n=== CONTACT MANAGEMENT ===");
-    System.out.println("1. Add contact");
-    System.out.println("2. View contacts");
-    System.out.println("3. Search contacts");
-    System.out.println("4. Update contact");
-    System.out.println("5. Delete contact");
-    System.out.println("6. Sort A-Z (challenge)");
-    System.out.println("0. Exit");
-    System.out.print("Choose: ");
+switch (choice) {
+    case "1" -> viewContacts(service.list());
+    case "2" -> addContact();
+    case "3" -> searchContacts();
+    case "4" -> updateContact();
+    case "5" -> deleteContact();
+    case "6" -> viewContacts(service.sorted());
+    default -> System.out.println("Please choose a valid option.");
 }
 ```
 
-This method has **one job**: display the menu. It does not add, delete, or search for a contact.
+Option `0` is handled just before the switch: it saves and exits. This way every operation returns to the menu until the user exits.
 
-- `static` means the method can be called by `main()` without creating a `ContactApp` object.
-- `void` means the method does not return a value.
-- `\n` starts a new line before the heading.
-- `print()` leaves the cursor on the same line for the user's input.
+### Reading keyboard input
 
-## 6. `addContact()` — creating and saving a contact
+`Scanner` reads what the user types:
 
 ```java
-static void addContact() {
-    System.out.print("Name: ");
-    String name = scanner.nextLine().trim();
-    System.out.print("Phone: ");
-    String phone = scanner.nextLine().trim();
-    System.out.print("Email (optional): ");
-    String email = scanner.nextLine().trim();
-
-    if (name.isEmpty() || phone.isEmpty()) {
-        System.out.println("Name and phone are required.");
-        return;
-    }
-    if (findByPhone(phone) != null) {
-        System.out.println("That phone number already exists.");
-        return;
-    }
-    contacts.add(new Contact(name, phone, email));
-    System.out.println("Contact added!");
+private String readLine(String prompt) {
+    System.out.print(prompt);
+    return SCANNER.hasNextLine() ? SCANNER.nextLine().trim() : null;
 }
 ```
 
-**Step A — Read input.** `scanner.nextLine()` reads text, and `.trim()` removes surrounding spaces.
+`nextLine()` reads a full line; `trim()` removes surrounding spaces. The `hasNextLine()` check also handles an ended input stream.
 
-**Step B — Validate required fields.**
+### Validating a typed contact ID
 
-```java
-if (name.isEmpty() || phone.isEmpty())
-```
+`promptId()` uses `Integer.parseInt()` inside a `try/catch`. If the user types letters, a negative number, or an impossibly large number, the program asks again instead of crashing.
 
-`||` means **OR**: reject the contact if either the name or phone number is blank. `return;` stops the method early.
+### Updating and deleting from the menu
 
-**Step C — Reject duplicates.**
+For update, the user enters an ID and may press Enter on a field to **keep its current value**. The service then checks the new values.
 
-```java
-if (findByPhone(phone) != null)
-```
+For delete, the user enters an ID and must type `yes` to confirm. Anything else cancels deletion.
 
-This checks whether a contact with that phone number already exists. `null` means no matching contact was found.
+## 8. Example: adding one contact step by step
 
-**Step D — Add to the collection.**
-
-```java
-contacts.add(new Contact(name, phone, email));
-```
-
-`new Contact(...)` constructs the object and `.add(...)` places that object in the ArrayList.
-
-**Example:** Enter `Anna`, `0701111111`, and `anna@example.com`. The program prints `Contact added!`.
-
-## 7. `viewContacts()` — displaying the list
-
-```java
-static void viewContacts() {
-    printContacts(contacts);
-}
-```
-
-This method passes the whole list to `printContacts()`, which is responsible for formatting and displaying the results.
-
-**Why use a helper?** Searching and sorting also need to display lists. Reusing the same `printContacts()` method avoids repeating display code.
-
-## 8. `searchContacts()` — finding matching contacts
-
-```java
-static void searchContacts() {
-    System.out.print("Search by name or phone: ");
-    String query = scanner.nextLine().trim().toLowerCase();
-    List<Contact> matches = new ArrayList<>();
-
-    for (Contact contact : contacts) {
-        if (contact.name.toLowerCase().contains(query)
-                || contact.phone.contains(query)) {
-            matches.add(contact);
-        }
-    }
-    printContacts(matches);
-}
-```
-
-How searching works:
-
-1. Ask the user for a search term.
-2. Convert the input to lowercase to help match names without case sensitivity.
-3. Make a new, empty list called `matches`.
-4. Loop over each stored contact using an **enhanced `for` loop**.
-5. Check whether the name or phone number **contains** the search text.
-6. Add matching contacts to `matches` and display that list.
-
-For example, searching for `ann` will find `Anna`.
-
-```java
-for (Contact contact : contacts)
-```
-
-means: “For every contact in `contacts`, temporarily refer to the current one as `contact`.”
-
-**Note:** An empty search query matches every contact, because every string contains `""`. This simple version does not reject empty searches.
-
-## 9. `updateContact()` — changing existing information
-
-```java
-static void updateContact() {
-    System.out.print("Phone number of contact to update: ");
-    Contact contact = findByPhone(scanner.nextLine().trim());
-    if (contact == null) {
-        System.out.println("Contact not found.");
-        return;
-    }
-
-    System.out.print("New name (Enter to keep): ");
-    String name = scanner.nextLine().trim();
-    System.out.print("New phone (Enter to keep): ");
-    String phone = scanner.nextLine().trim();
-    System.out.print("New email (Enter to keep): ");
-    String email = scanner.nextLine().trim();
-
-    if (!phone.isEmpty() && !phone.equals(contact.phone)
-            && findByPhone(phone) != null) {
-        System.out.println("That phone number already exists.");
-        return;
-    }
-    if (!name.isEmpty()) contact.name = name;
-    if (!phone.isEmpty()) contact.phone = phone;
-    if (!email.isEmpty()) contact.email = email;
-    System.out.println("Contact updated!");
-}
-```
-
-How it works:
-
-1. Find the existing contact by its current phone number.
-2. If there is no match, show `Contact not found.` and stop.
-3. Ask for replacement values.
-4. If a new phone number was entered, verify that it is not used by another contact.
-5. Change only fields for which the user entered new text.
-
-The `!` operator means **NOT**, so `!name.isEmpty()` means the input is not empty. The `&&` operator means **AND**: all its conditions must be true.
-
-**Example:** Search for `0701111111`, enter `Maria` as the new name, and press Enter for the new phone and email. Only the name changes.
-
-**Small limitation:** Pressing Enter for email keeps the old email; there is no special command to erase an existing email value.
-
-## 10. `deleteContact()` — removing a contact
-
-```java
-static void deleteContact() {
-    System.out.print("Phone number to delete: ");
-    Contact contact = findByPhone(scanner.nextLine().trim());
-    if (contact == null) {
-        System.out.println("Contact not found.");
-        return;
-    }
-    contacts.remove(contact);
-    System.out.println("Contact deleted!");
-}
-```
-
-First, the method finds a contact by phone number. If it exists, the method uses:
-
-```java
-contacts.remove(contact);
-```
-
-to remove that object from the ArrayList. `ArrayList` automatically updates its indexes after removal.
-
-## 11. `sortContacts()` — optional Challenge 1
-
-```java
-static void sortContacts() {
-    List<Contact> sorted = new ArrayList<>(contacts);
-    sorted.sort((first, second) ->
-            first.name.compareToIgnoreCase(second.name));
-    printContacts(sorted);
-}
-```
-
-This is our **additional workshop challenge**: display contacts in alphabetical order.
-
-**First**, create a new list:
-
-```java
-List<Contact> sorted = new ArrayList<>(contacts);
-```
-
-This creates a separate ArrayList containing references to the same contact objects. Sorting this new list changes its **order**, but not the order of the original `contacts` list.
-
-**Next**, sort by name:
-
-```java
-sorted.sort((first, second) ->
-        first.name.compareToIgnoreCase(second.name));
-```
-
-The expression `(first, second) -> ...` is a **lambda** that provides a comparison rule for sorting. `compareToIgnoreCase` compares the two names without treating uppercase and lowercase letters as different.
-
-**Finally**, display the sorted list using `printContacts(sorted)`.
-
-| Order contacts were added | Displayed by Sort A–Z |
-|---|---|
-| Zara | Anna |
-| Anna | Omar |
-| Omar | Zara |
-
-We added Challenge 1 without needing a database, file saving, or a JUnit testing framework.
-
-## 12. Helper method: `findByPhone()`
-
-```java
-static Contact findByPhone(String phone) {
-    for (Contact contact : contacts) {
-        if (contact.phone.equals(phone)) return contact;
-    }
-    return null;
-}
-```
-
-This method loops through the list and checks each contact's phone number.
-
-- If it finds an exact match, it **returns that `Contact` object**.
-- If it reaches the end without a match, it returns `null`.
-
-Because its return type is `Contact`, it returns an object (or `null`), unlike a `void` method.
-
-This helper is reused by **add**, **update**, and **delete**.
-
-## 13. Helper method: `printContacts()`
-
-```java
-static void printContacts(List<Contact> list) {
-    if (list.isEmpty()) {
-        System.out.println("No contacts found.");
-        return;
-    }
-    for (Contact contact : list) {
-        System.out.println(contact);
-    }
-}
-```
-
-The method accepts **any `List<Contact>`** and displays its contents.
-
-- `list.isEmpty()` checks whether there is nothing to print.
-- The enhanced `for` loop visits each contact.
-- `System.out.println(contact)` automatically calls the `Contact` object's `toString()` method.
-
-It is shared by **view**, **search**, and **sort**.
-
----
-
-## 14. Practice walkthrough: follow the data
-
-Run the program and follow this sequence:
-
-**Step 1 — Add contacts.**
+Imagine the user selects `2. Add contact` and types:
 
 ```text
-Choose: 1
-Name: Zara
-Phone: 0703333333
-Email (optional): zara@example.com
-Contact added!
+First name: Anna
+Last name: Lee
+Phone: 0701111111
+Email (optional): anna@example.com
+OK: Contact added with id 1
 ```
 
-Repeat option 1 to add Anna and Omar with different phone numbers.
+What happened?
 
-**Step 2 — View the original order.**
+1. `ContactApp.addContact()` read the four values.
+2. `ContactService.add(...)` checked for missing values, invalid formats and duplicates.
+3. `ContactRepository.add(...)` created a new `Contact` with ID 1.
+4. The repository put it in the `LinkedHashMap`.
+5. The service returned a successful `ValidationResult`.
+6. The console displayed the message and then showed the menu again.
+
+This **menu → service → repository → contact** pattern is the most important idea to understand.
+
+## 9. Example: search, update and delete
+
+**Search:** Option 3 asks for part of a name or phone number. The repository checks each stored contact and returns a list of matches.
+
+**Update:** Option 4 asks for an existing ID, such as `1`. The user can change the name or phone while leaving other fields blank. The old contact is replaced with a new object **using the same ID**.
+
+**Delete:** Option 5 asks for the ID, requests confirmation with `yes`, then removes the contact. Searching for that ID afterward finds nothing.
+
+These methods reuse the same repository and validation logic. That avoids copying the same checks into every menu option.
+
+## 10. Challenge 1 — alphabetical sorting
+
+Option `6` displays the contacts in alphabetical order by **first name, then last name**.
+
+The key part in `ContactRepository.java` is:
+
+```java
+List<Contact> sorted = findAll();
+sorted.sort(Comparator.comparing(
+        Contact::getFirstName, String.CASE_INSENSITIVE_ORDER)
+        .thenComparing(Contact::getLastName, String.CASE_INSENSITIVE_ORDER));
+return sorted;
+```
+
+Why create `sorted`? We sort a **copy** of the contacts. The original `LinkedHashMap` keeps its insertion order.
+
+Example:
+
+| Order added | Option 6: A–Z |
+| --- | --- |
+| Zara Jones | Anna Lee |
+| Anna Lee | Omar Ali |
+| Omar Ali | Zara Jones |
+
+`Comparator` tells Java how to compare two contacts; `String.CASE_INSENSITIVE_ORDER` ignores uppercase/lowercase when comparing the names.
+
+## 11. Challenge 2 — JUnit 5 tests
+
+**Padma worked on Challenge 2**, which asks for unit tests for the data-access operations.
+
+The tests are in:
+
+- [`ContactWorkshopTest.java`](src/test/java/se/lexicon/ContactWorkshopTest.java) — add, search, update, delete, validation and sorting.
+- [`ContactFileTest.java`](src/test/java/se/lexicon/ContactFileTest.java) — file saving and loading.
+
+JUnit uses `@Test` to mark a test method. For example:
+
+```java
+@Test
+void repositoryDelete_negativeUnknownId() {
+    assertFalse(repository.delete(99));
+}
+```
+
+Here `assertFalse` means the test passes only if attempting to delete an unknown ID returns false.
+
+Challenge 2 asks for **positive and negative** tests for each data-access operation:
+
+| Operation | Positive test | Negative test |
+| --- | --- | --- |
+| Add | Valid contact is stored | Duplicate phone is rejected |
+| Search | Existing contact is found | Unknown query returns empty list |
+| Update | Existing contact is changed | Unknown ID cannot be updated |
+| Delete | Existing contact is deleted | Unknown ID cannot be deleted |
+
+The project contains **25 methods marked `@Test`** across the two files. This is the number of test cases *written*, **not a claim that all have passed**.
+
+To run the suite on a machine with Maven installed:
+
+```bash
+mvn test
+```
+
+If using IntelliJ IDEA, you can also import the Maven project and run the JUnit test classes. Record the actual passing/failing results after running them. Manual console testing is useful too, but it is **not** a substitute for running the JUnit suite when reporting Challenge 2 as verified.
+
+## 12. Challenge 3 — saving and loading contacts
+
+**Tuku worked on Challenge 3**, which adds simple **plain-text file I/O**.
+
+Without saving, contacts would disappear when the application closed. Our current program:
+
+- **Loads** `contacts.txt` automatically at startup, if the file exists.
+- **Saves** all contacts to `contacts.txt` when the user chooses option `0`.
+- Starts with an empty collection if no file exists yet.
+
+One contact is saved per line:
 
 ```text
-Choose: 2
-Zara | 0703333333 | zara@example.com
-Anna | 0701111111 | anna@example.com
-Omar | 0702222222 | omar@example.com
+1|Anna|Lee|0701111111|anna@example.com
+2|Omar|Ali|0702222222|
 ```
 
-**Step 3 — Sort the display.**
+The `|` character separates the fields. An empty final field represents an optional email.
 
-```text
-Choose: 6
-Anna | 0701111111 | anna@example.com
-Omar | 0702222222 | omar@example.com
-Zara | 0703333333 | zara@example.com
+In the repository, `saveToFile(Path path)` uses `Files.write(...)`. `loadFromFile(Path path)` uses `Files.readAllLines(...)`, splits each line, constructs contacts and restores their IDs. It also adjusts `nextId` so the next new contact receives a new ID.
+
+**Where is the file?** Usually in the folder from which you start the Java program. It is ignored by Git so personal contact data is not automatically committed.
+
+If the file exists but is malformed, startup displays an error and stops instead of overwriting it.
+
+**Important limitation:** Saving occurs on normal exit through option 0 (or end-of-input). Unexpected termination may lose changes made since the last save. This is acceptable for this small workshop.
+
+## 13. Manual testing — a practice checklist
+
+**Jay and Veselina** led the group's manual testing. Repeat these scenarios on the current version:
+
+| What you do | What should happen |
+| --- | --- |
+| Choose 1 when no contacts exist | “No contacts found.” |
+| Choose 2 and add Anna Lee | New ID and success message |
+| Add another contact with Anna's phone | Duplicate phone rejected |
+| Enter an empty last name | Name required error |
+| Enter phone `abcd` | Invalid phone error |
+| Enter optional email `wrong` | Invalid email error |
+| Choose 3 and search `ann` | Anna appears |
+| Choose 4 and change Anna's name | New name shown; same ID |
+| Choose 5 and type anything except `yes` | Delete cancelled |
+| Choose 5 and type `yes` | Contact removed |
+| Add Zara, Anna, Omar, then choose 6 | Anna, Omar, Zara |
+| Enter letters or a very large ID | Error shown, asks for ID again |
+| Choose 0, then run the app again | Saved contacts load |
+
+The table shows **expected results** so you can perform and document testing; it is not a new execution log.
+
+## 14. Run the current application
+
+**Using IntelliJ IDEA:** Clone the repository, open the project folder, and run `ContactApp.main()`.
+
+**Using the terminal:** Install **JDK 17+** and run these commands from the repository root:
+
+```bash
+git clone https://github.com/jackaldzn-blip/contact-management-workshop.git
+cd contact-management-workshop
+javac -d out src/main/java/se/lexicon/*.java
+java -cp out se.lexicon.ContactApp
 ```
 
-**Step 4 — View again.** Choose option 2. The original insertion order still appears because `sortContacts()` sorted a copy.
+The `javac` command compiles the four Java classes into `out`. The next line starts the app.
 
-**Step 5 — Search.** Choose option 3, type `ann`, and see Anna's contact.
+With Maven installed, run `mvn test` to execute Challenge 2's unit tests. See the [README](README.md) for Git pull, push and branch commands.
 
-**Step 6 — Update and delete.** Choose option 4 to rename Anna, then option 5 to delete a contact by its phone number.
+## 15. Important Java concepts to explain to the trainer
 
-## 15. Manual testing: what should we check?
+| Concept | Where we see it |
+| --- | --- |
+| Class and object | `Contact` and `new Contact(...)` |
+| Constructor and getters | `Contact.java` |
+| Encapsulation | `private final` fields |
+| Collection | `LinkedHashMap<Integer, Contact>` |
+| List | `ArrayList<Contact>` results |
+| Loop | `while` menu and `for` search |
+| Selection | `switch` and `if` |
+| Methods | `add`, `search`, `update`, `delete` |
+| Return values | `boolean`, `Optional<Contact>`, `List<Contact>` |
+| Validation | `ContactService.validate(...)` |
+| Sorting | `Comparator` and `sort()` |
+| File I/O | `Files.write` / `Files.readAllLines` |
+| Unit testing | JUnit `@Test` and assertions |
 
-Our workshop uses **manual testing**, not JUnit. We run the application, enter test data, and compare the output to what we expect.
+### Quick review questions
 
-| Test | Action | Expected result |
-|---|---|---|
-| Add | Add Anna with a unique phone | `Contact added!` |
-| View | View after adding Anna | Anna appears |
-| Search | Search `ann` | Anna appears |
-| Update | Rename Anna to Maria | The updated contact appears |
-| Delete | Delete Maria by phone | Contact is removed |
-| Duplicate phone | Add another contact with an existing phone | Duplicate rejected |
-| Empty name | Try to add a contact without a name | Required-fields message |
-| Unknown phone | Update or delete a number not in the list | `Contact not found.` |
-| Sort A–Z | Add Zara, Anna, Omar; choose option 6 | Anna, Omar, Zara |
-| Invalid menu choice | Enter `9` | Valid-option message; menu continues |
-| Exit | Enter `0` | `Goodbye!` |
+1. Why does `ContactApp` not directly manage the map of contacts?
+2. What does `LinkedHashMap<Integer, Contact>` store?
+3. Why is a phone number a `String`?
+4. Where are duplicate phones checked?
+5. What happens when a user searches for a contact that does not exist?
+6. Why does sorting use a copy of the list?
+7. How does the application remember contacts after restarting?
+8. What is the difference between running the menu manually and running JUnit tests?
 
-**Do not mark a test as passed until someone in the group actually performs it.** Record who tested it and whether the observed result matched the expected one.
-
-## 16. Java concepts to explain to the trainer
-
-| Concept | Where to find it |
-|---|---|
-| Package and imports | `package` / `import` lines |
-| Class and object | `Contact` / `new Contact(...)` |
-| Constructor | `Contact(String name, String phone, String email)` |
-| ArrayList | `new ArrayList<>()` |
-| Methods | `addContact()`, `searchContacts()`, etc. |
-| `while` loop | Repeats the menu |
-| `switch` | Selects the requested operation |
-| Enhanced `for` loop | Search and printing |
-| `if` statements | Required fields, duplicates, not-found checks |
-| `.add()` and `.remove()` | Saving and deleting from the list |
-| `.sort()` and lambda | Alphabetical sorting challenge |
-| `return` / `null` | `findByPhone()` and early exits |
-| Code reuse | `findByPhone()` and `printContacts()` |
-
-### Questions to discuss together
-
-1. Why do we store phone numbers as `String` instead of `int`?
-2. What is the difference between a `Contact` object and `List<Contact>`?
-3. Why do we check for duplicate phone numbers before adding a contact?
-4. What happens when `findByPhone()` does not find a contact?
-5. Why do `viewContacts()`, `searchContacts()`, and `sortContacts()` all use `printContacts()`?
-6. Why do we sort a **copy** of the list in Challenge 1?
-7. What happens to contacts after the program closes?
-
-**Learning order:** Begin with `Contact`, `contacts`, `addContact()`, `findByPhone()`, and `printContacts()`. Once these are clear, the menu and the remaining methods are much easier to follow.
-
----
-
-**Run the application** in IntelliJ IDEA by opening `ContactApp.java` and running its `main()` method, or use the commands in the [project README](https://github.com/jackaldzn-blip/contact-management-workshop/blob/main/README.md).
+**Best learning order:** Understand **Contact → Repository → Service → App**, then practise **Add → View → Search → Update → Delete**, then study **Sorting → JUnit → File I/O**. You only need to learn one part at a time.
