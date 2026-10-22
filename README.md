@@ -135,4 +135,6 @@ Open a Pull Request to `main` on GitHub, review it and merge it. The three optio
 
 For a beginner-friendly explanation of the current four Java classes and all three challenges, read [UNDERSTANDING_CONTACT_APP.md](UNDERSTANDING_CONTACT_APP.md).
 
+**Individual implementation reference:** [Tuku's original Contact Workshop](https://github.com/tukue/java-fundamentals/tree/main/contact-workshop). The shared group version is a separate adapted implementation.
+
 See [FINAL_REPORT.md](FINAL_REPORT.md) for the group report.
