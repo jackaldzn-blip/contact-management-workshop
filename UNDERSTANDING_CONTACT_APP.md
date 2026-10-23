@@ -454,15 +454,4 @@ With Maven installed, run `mvn test` to execute Challenge 2's unit tests. See th
 | File I/O | `Files.write` / `Files.readAllLines` |
 | Unit testing | JUnit `@Test` and assertions |
 
-### Quick review questions
-
-1. Why does `ContactApp` not directly manage the map of contacts?
-2. What does `LinkedHashMap<Integer, Contact>` store?
-3. Why is a phone number a `String`?
-4. Where are duplicate phones checked?
-5. What happens when a user searches for a contact that does not exist?
-6. Why does sorting use a copy of the list?
-7. How does the application remember contacts after restarting?
-8. What is the difference between running the menu manually and running JUnit tests?
-
 **Best learning order:** Understand **Contact → Repository → Service → App**, then practise **Add → View → Search → Update → Delete**, then study **Sorting → JUnit → File I/O**. You only need to learn one part at a time.
